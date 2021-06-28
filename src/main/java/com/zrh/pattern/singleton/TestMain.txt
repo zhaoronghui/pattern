@@ -1,0 +1,15 @@
+package com.zrh.pattern.singleton;
+
+public class TestMain {
+    public static void main(String[] args) {
+        SingletonDeom1 d1 = SingletonDeom1.getInstance();
+        SingletonDeom1 d2 = SingletonDeom1.getInstance();
+        System.out.println("d1==="+d1);
+        System.out.println("d2==="+d2);
+
+        SingletonDeom2 d3 = SingletonDeom2.getInstance();
+        SingletonDeom2 d4 = SingletonDeom2.getInstance();
+        System.out.println("d3==="+d3);
+        System.out.println("d4==="+d4);
+    }
+}

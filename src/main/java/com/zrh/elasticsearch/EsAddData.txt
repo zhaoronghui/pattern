@@ -1,0 +1,43 @@
+package com.zrh.elasticsearch;
+
+import org.apache.http.HttpHost;
+import org.elasticsearch.ElasticsearchException;
+import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.index.IndexResponse;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.common.xcontent.XContentFactory;
+import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.rest.RestStatus;
+
+import java.io.IOException;
+
+public class EsAddData {
+    public static void main(String[] args) throws IOException {
+        RestHighLevelClient client = new RestHighLevelClient( // 连接客户端
+                RestClient.builder(
+                        new HttpHost("10.30.64.100", 9200, "http"))); //TCP端口是9300，http端口是9200
+        // 1、创建索引请求  //索引  // mapping type  //文档id
+        IndexRequest request = new IndexRequest("tab_test","_doc","2");     //文档id
+        // 2、准备文档数据
+        XContentBuilder xContentBuilder = XContentFactory.jsonBuilder().startObject()
+                .field("age",25)
+                .field("message","这里放信息")
+                .field("name","张三")
+                .endObject();
+        /*String jsonString = "{" +
+                "\"name\":\"kimchy\"," +
+                "\"age\":\"20\"," +
+                "\"message\":\"trying out Elasticsearch\"" +
+                "}";*/
+        // 直接给JSON串
+        request.source(xContentBuilder);
+//        request.source(jsonString,XContentType.JSON);
+        //4、发送请求
+        IndexResponse indexResponse = client.index(request, RequestOptions.DEFAULT);
+
+        System.out.println("1222222222222222"+indexResponse.status());
+    }
+}

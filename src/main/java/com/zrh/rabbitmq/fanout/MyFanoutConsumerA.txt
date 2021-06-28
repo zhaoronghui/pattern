@@ -1,0 +1,26 @@
+package com.zrh.rabbitmq.fanout;
+
+import com.rabbitmq.client.*;
+
+import java.io.IOException;
+
+public class MyFanoutConsumerA {
+
+    public static void main(String[] args) throws IOException {
+        System.out.println("===============");
+        Connection connection = RabbitMQUtil.getConnection();
+        Channel channel = connection.createChannel();
+        //获取临时队列
+//        String queueName = channel.queueDeclare().getQueue();
+        String queueName = "AAA";
+        System.out.println(queueName);
+        //将临时队列和交换机绑定，广播模式路由键不起作用
+        channel.queueBind(queueName,"news-exchange","");
+        channel.basicConsume(queueName, true, new DefaultConsumer(channel) {
+            @Override
+            public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
+                System.out.println("消费者A:"+new String(body));
+            }
+        });
+    }
+}

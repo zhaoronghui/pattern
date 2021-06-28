@@ -1,0 +1,13 @@
+package com.zrh.pattern.singleton;
+/*
+* 系统加载时创建 - 饿汉模式
+* */
+public class SingletonDeom1 {
+    private SingletonDeom1(){
+
+    }
+    private static SingletonDeom1 singletonDeom1 = new SingletonDeom1();
+    public static SingletonDeom1 getInstance(){
+        return singletonDeom1;
+    }
+}

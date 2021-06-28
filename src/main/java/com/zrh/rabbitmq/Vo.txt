@@ -1,0 +1,16 @@
+package com.zrh.rabbitmq;
+
+import java.util.List;
+
+public class Vo {
+
+    private List<String> roomType;
+
+    public List<String> getRoomType() {
+        return roomType;
+    }
+
+    public void setRoomType(List<String> roomType) {
+        this.roomType = roomType;
+    }
+}

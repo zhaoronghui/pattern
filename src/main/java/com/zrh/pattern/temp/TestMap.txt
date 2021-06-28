@@ -1,0 +1,15 @@
+package com.zrh.pattern.temp;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class TestMap {
+    public static void main(String[] args) {
+        Map map = new HashMap<>();
+        map.put("123","123");
+        map.put(123,123);
+        map.put(map,map);
+
+        map.get(map);
+    }
+}

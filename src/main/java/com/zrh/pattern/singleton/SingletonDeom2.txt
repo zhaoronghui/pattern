@@ -1,0 +1,16 @@
+package com.zrh.pattern.singleton;
+/*
+* 需要时创建 - 懒汉模式
+* */
+public class SingletonDeom2 {
+    private SingletonDeom2(){
+
+    }
+    private static SingletonDeom2 singletonDeom1;
+    public static SingletonDeom2 getInstance(){
+        if(null == singletonDeom1){
+            singletonDeom1 = new SingletonDeom2();
+        }
+        return singletonDeom1;
+    }
+}

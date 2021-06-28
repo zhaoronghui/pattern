@@ -1,0 +1,37 @@
+package com.zrh.rabbitmq.direct;
+
+import com.rabbitmq.client.*;
+
+import java.io.IOException;
+import java.util.concurrent.TimeoutException;
+
+public class MyDirectConsumerB {
+    public static void main(String[] args) throws IOException, TimeoutException {
+        ConnectionFactory factory = new ConnectionFactory();
+        factory.setHost("10.30.64.100");
+        factory.setPort(5673);
+        factory.setVirtualHost("/");
+        factory.setUsername("admin");
+        factory.setPassword("1qazxsw2");
+        Connection connection = factory.newConnection();
+        Channel channel = connection.createChannel();
+        channel.exchangeDeclare("direct-exchange","direct");
+        String queueName = channel.queueDeclare().getQueue();
+
+        AMQP.Queue.BindOk a = channel.queueBind(queueName,"direct-exchange","direct-routingkeyB");
+        System.out.println("a==="+a);
+        System.out.println("绑定成功B");
+        //这里重写了DefaultConsumer的handleDelivery方法，因为发送的时候对消息进行了getByte()，在这里要重新组装成String
+        Consumer consumer = new DefaultConsumer(channel) {
+            @Override
+            public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
+                super.handleDelivery(consumerTag, envelope, properties, body);
+                String message = new String(body,"UTF-8");
+                System.out.println("B received:" + message);
+            }
+        };
+        //声明队列中被消费掉的消息（参数为：队列名称；消息是否自动确认;consumer主体）
+        channel.basicConsume(queueName,true,consumer);
+
+    }
+}

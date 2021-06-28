@@ -1,0 +1,29 @@
+package com.zrh.rabbitmq.direct;
+
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.concurrent.TimeoutException;
+
+public class MyDirectProducer {
+    public static void main(String[] args) throws IOException, TimeoutException {
+        ConnectionFactory factory = new ConnectionFactory();
+        factory.setHost("10.30.64.100");
+        factory.setPort(5673);
+        factory.setVirtualHost("/");
+        factory.setUsername("admin");
+        factory.setPassword("1qazxsw2");
+        Connection connection = factory.newConnection();
+        Channel channel = connection.createChannel();
+        //指定交换机名称和交换机类型
+        channel.exchangeDeclare("direct-exchange","direct");
+        //指定要发送的交换机、路由键和消息内容
+        channel.basicPublish("direct-exchange","direct-routingkeyA",null,"测试消息AA".getBytes(StandardCharsets.UTF_8));
+        System.out.println("发送成功");
+        channel.close();
+        connection.close();
+    }
+}

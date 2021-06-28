@@ -1,0 +1,8 @@
+package com.zrh.rabbitmq.topic;
+
+import com.rabbitmq.client.*;
+
+
+public class Recv2 {
+
+}

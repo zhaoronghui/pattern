@@ -1,0 +1,27 @@
+package com.zrh.rabbitmq.topic;
+
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
+import java.io.IOException;
+import java.util.concurrent.TimeoutException;
+
+public class MyTopicProducer {
+    private static final String EXCHANGE_NAME = "topic-exchange";
+    public static void main(String[] args) throws IOException, TimeoutException {
+        /*ConnectionFactory factory = new ConnectionFactory();
+        factory.setHost("10.30.64.100");
+        factory.setPort(5673);
+        factory.setVirtualHost("/");
+        factory.setUsername("admin");
+        factory.setPassword("1qazxsw2");
+        Connection connection = factory.newConnection();*/
+        Connection connection = ConnectionUtils.getConnection();
+        final Channel channel = connection.createChannel();
+        channel.exchangeDeclare(EXCHANGE_NAME,"topic");
+        channel.basicPublish(EXCHANGE_NAME,"topic-routingkey",null,"测试topic消息123".getBytes());
+        System.out.println("发送结束");
+        channel.close();
+        connection.close();
+    }
+}

@@ -1,0 +1,71 @@
+package com.zrh.elasticsearch;
+
+import org.apache.http.HttpHost;
+import org.elasticsearch.action.admin.indices.alias.Alias;
+import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
+import org.elasticsearch.action.support.master.AcknowledgedResponse;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.client.indices.CreateIndexRequest;
+import org.elasticsearch.client.indices.CreateIndexResponse;
+import org.elasticsearch.client.indices.GetIndexRequest;
+import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.index.query.QueryBuilders;
+
+import java.io.IOException;
+import java.net.UnknownHostException;
+import java.util.HashMap;
+import java.util.Map;
+
+public class CreateIndex {
+    public static void main(String[] args) throws IOException {
+        RestHighLevelClient client = null;
+        client = new RestHighLevelClient( // 连接客户端
+                RestClient.builder(
+                        new HttpHost("10.30.64.100", 9200, "http"))); //TCP端口是9300，http端口是9200
+
+
+
+        GetIndexRequest getRequest = new GetIndexRequest("tab_test");
+        boolean exists1 = client.indices().exists(getRequest, RequestOptions.DEFAULT);
+        System.out.println("========索引存在吗================"+exists1);
+        if (!exists1) { // 如果索引不存在
+            CreateIndexRequest request = new CreateIndexRequest("tab_test");
+            //整体设置
+            request.source("{\n" +
+                    "    \"settings\" : {\n" +
+                    "        \"number_of_shards\" : 1,\n" +      // 数据分片数
+                    "        \"number_of_replicas\" : 0\n" +     // 数据备份数
+                    "    },\n" +
+                    "    \"mappings\" : {\n" +
+                    "        \"properties\" : {\n" +
+                    "            \"message\" : { \"type\" : \"text\" },\n" +
+                    "            \"name\" : { \"type\" : \"text\" },\n" +
+                    "            \"age\" : { \"type\" : \"text\" }\n" +
+                    "        }\n" +
+                    "    },\n" +
+                    "    \"aliases\" : {\n" +
+                    "        \"twitter_alias\" : {}\n" +
+                    "    }\n" +
+                    "}", XContentType.JSON);
+
+            CreateIndexResponse response = client.indices().create(request, RequestOptions.DEFAULT);
+            if (response.isAcknowledged()) {
+                System.out.println("索引创建成功=====" + response.index());
+            } else {
+                System.out.println("索引创建失败=====");
+            }
+            client.close();
+        }else{
+            DeleteIndexRequest deleteRequest = new DeleteIndexRequest("tab_test");
+            // 删除
+            AcknowledgedResponse deleteStatus = client.indices().delete(deleteRequest, RequestOptions.DEFAULT);
+            System.out.println("索引删除的是否成功=====" + deleteStatus.isAcknowledged());
+        }
+
+        boolean exists2 = client.indices().exists(getRequest, RequestOptions.DEFAULT);
+        System.out.println("索引存在？============"+exists2);
+    }
+}

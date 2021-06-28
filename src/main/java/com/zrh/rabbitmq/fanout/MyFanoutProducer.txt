@@ -1,0 +1,45 @@
+package com.zrh.rabbitmq.fanout;
+
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
+
+import java.io.IOException;
+import java.util.concurrent.TimeoutException;
+
+public class MyFanoutProducer {
+    private static final String QUEUE_NAME = "TEST_QUEUE";
+
+    public static void main(String[] args) {
+        //1、创建一个ConnectionFactory,并进行设置
+        ConnectionFactory factory = new ConnectionFactory();
+        //设置RabbitMQ服务器所在主机ip
+        factory.setHost("10.30.64.100");
+        //设置RabbitMQ的端口号
+        factory.setPort(5673);
+        //
+        factory.setVirtualHost("/");
+        factory.setUsername("admin");
+        factory.setPassword("1qazxsw2");
+        try {
+            //2、通过链接工厂来创建链接
+            Connection connection = factory.newConnection();
+
+            //3、通过Connection来创建channel
+            Channel channel = connection.createChannel();
+            //参数：交换机名称、交换机类型、是否持久化
+            channel.exchangeDeclare("news-exchange","fanout",true);
+            //参数：
+            // 自定义的交换机名称、
+            // fanout消息模型，路由键不起作用，用空字符串代替
+            // 可设置消息属性，例如编码格式、过期时间等
+            // 要发送的消息
+            channel.basicPublish("news-exchange","",null,"广播模式测试H".getBytes());
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (TimeoutException e) {
+            e.printStackTrace();
+        }
+    }
+}

@@ -1,0 +1,160 @@
+package com.zrh;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.nio.charset.Charset;
+import java.nio.file.FileVisitResult;
+import java.nio.file.FileVisitor;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.OpenOption;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Arrays;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+public class Main
+{
+    private static Charset UTF8 = Charset.forName("UTF-8");
+
+    public static void main(String[] args)
+            throws Exception
+    {
+        if (isEmpty(args)) {
+            System.out.println("select a dir");
+            return;
+        }
+
+        System.out.println((String)Arrays.stream(args).collect(Collectors.joining(", ")));
+
+        Path path = Paths.get(args[0], new String[0]);
+
+        if (!path.toFile().exists()) {
+            System.out.println(path.toString() + " not exists");
+            return;
+        }
+
+        if (Files.isDirectory(path, new LinkOption[0]))
+        {
+            Files.walkFileTree(path, new FileVisitor()
+            {
+                public FileVisitResult preVisitDirectory(Object o, BasicFileAttributes basicFileAttributes) throws IOException
+                {
+                    if (o == null) {
+                        return FileVisitResult.SKIP_SUBTREE;
+                    }
+                    if ((o instanceof Path)) {
+                        String s = ((Path)o).getFileName().toString();
+                        if (contains(new String[] { "targets", "logs" }, s)) {
+                            return FileVisitResult.SKIP_SUBTREE;
+                        }
+                        return FileVisitResult.CONTINUE;
+                    }
+                    return FileVisitResult.SKIP_SUBTREE;
+                }
+
+                public FileVisitResult visitFile(Object o, BasicFileAttributes basicFileAttributes) throws IOException
+                {
+                    if (o == null) {
+                        return FileVisitResult.CONTINUE;
+                    }
+                    if ((o instanceof Path)) {
+                        try {
+                            revertFile((Path)o, false);
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                    return FileVisitResult.CONTINUE;
+                }
+
+                public FileVisitResult visitFileFailed(Object o, IOException e) throws IOException
+                {
+                    return FileVisitResult.CONTINUE;
+                }
+
+                public FileVisitResult postVisitDirectory(Object o, IOException e) throws IOException
+                {
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+        }
+        else revertFile(path, true);
+    }
+
+    private static boolean contains(String[] args, String s)
+    {
+        for (String arg : args) {
+            if (s.equalsIgnoreCase(arg)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+    private static boolean isEmpty(String[] args) {
+        return (args == null) || (args.length == 0);
+    }
+
+    private static void revertFile(Path file, boolean onefile) throws IOException
+    {
+        String name = file.getFileName().toString();
+        int i = name.lastIndexOf(46);
+
+        if (i <= 0) {
+            return;
+        }
+
+        if (!onefile) {
+            String ext = name.substring(i + 1).toLowerCase();
+
+            switch (ext) {
+                case "java":
+                case "xml":
+                case "properties":
+                case "service":
+                case "http":
+                case "json":
+                case "vue":
+                case "html":
+                case "js":
+                case "css":
+                case "code-workspace":
+                case "txt":
+                case "ini":
+                case "jar":
+                case "zip":
+                case "doc":
+                case "csv":
+                case "docx":
+                case "xls":
+                case "xlsx":
+                case "ppt":
+                case "pptx":
+                case "pdf":
+                case "pdr":
+                case "xmind":
+                    break;
+                default:
+                    return;
+            }
+        }
+
+        System.out.println(file.toString());
+
+        System.out.println("  read");
+        byte[] bytes = Files.readAllBytes(file);
+
+        System.out.println("  delete");
+        Files.delete(file);
+
+        System.out.println("  revert");
+
+        Files.write(file, bytes, new OpenOption[0]);
+
+        System.out.println("  ok");
+    }
+}
